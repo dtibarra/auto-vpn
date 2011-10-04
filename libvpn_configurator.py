@@ -26,7 +26,7 @@ def chap_is_stale():
     try:
         file_time = time.localtime(os.stat('/tmp/_chap_secret').st_mtime)
     except OSError:
-        return False
+        return True
     current_time = time.localtime()
     if file_time[3] < current_time[3]:
         return True
@@ -46,12 +46,12 @@ def write_chap_secret(user_name, vpn_name, password):
     secret_added = False
     for line in f.readlines():
         if re.search(chap_regex, line):
-            lines.append('%s %s "%s" *' % (user_name, vpn_name, password))
+            lines.append('%s %s "%s" *\n' % (user_name, vpn_name, password))
             secret_added = True
         else:
             lines.append(line)
     if not secret_added:
-        lines.append('%s %s "%s" *' % (user_name, vpn_name, password))
+        lines.append('%s %s "%s" *\n' % (user_name, vpn_name, password))
     f.close()
     f = open('/etc/ppp/chap-secrets','w')
     for line in lines:

@@ -49,11 +49,12 @@ if libvpn_configurator.chap_is_stale():
     try:
         libvpn_configurator.write_chap_secret(vpn_user, vpn_name, vpn_password)
         libvpn_configurator.write_peer_file(vpn_user, vpn_name, vpn_server)
-    except Exception as e:
+    except IOError:
         print "[ERRORED] Password is %s - please connect manually." % (vpn_password)
-        print str(e)
-    sys.exit(1)
+        sys.exit(1)
+    print "[+] Got a password!"
 
 print "[+] Setting up VPN.."
 #Do VPN stuff!
 libvpn_configurator.start_vpn(vpn_name)
+print "[+] VPN set up? Check to see if pptp is running."

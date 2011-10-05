@@ -12,4 +12,5 @@ vpn_server = <server of vpn server>
 
 [etc]
 result_regex = <font color='green'>[a-z]+ -- (?P<vpn_password>[a-zA-Z0-9]+)</font>
+ips_to_access = 123.123.123.123,123.123.123.124
 """

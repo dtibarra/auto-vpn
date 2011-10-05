@@ -1,4 +1,4 @@
-import subprocess
+from subprocess import Popen, PIPE
 import re
 import os
 import time
@@ -7,8 +7,7 @@ import time
 def determine_os():
     command = ["lsb_release", "-a"]
     try:
-        p = subprocess.Popen(command, stdout=subprocess.PIPE, 
-                                      stderr=subprocess.PIPE)
+        p = Popen(command, stdout=PIPE, stderr=PIPE)
     except OSError:
         return "Unknown"
     output = p.communicate()[0]
@@ -81,7 +80,22 @@ def write_peer_file(user_name, vpn_name, vpn_host):
 def start_vpn(vpn_name):
     command = ["pon", vpn_name]
     try:
-        p = subprocess.Popen(command)
+        p = Popen(command)
     except OSError:
         print "[!] Cannot start the VPN, likely you do not have pon installed \
 or it's not in your PATH."
+
+#grabs the gateway ip for pptp
+def get_gateway():
+    p1 = Popen(["ip","addr"], stdout=PIPE)
+    p2 = Popen(['grep','ppp0'], stdin=p1.stdout, stdout=PIPE)
+    p3 = Popen(['grep', 'inet'],stdin=p2.stdout, stdout=PIPE)
+    line = p3.communicate()[0]
+    match = re.search('\s+inet\s([0-9\.]+)\speer\s([0-9\.]+)/32.*', line)
+    if match:
+        return match.group(2)
+    else:
+        return False
+
+def create_route(ip, gateway):
+    Popen(["ip", "route", "add", ip, "via", gateway])

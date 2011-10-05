@@ -26,7 +26,6 @@ vpn_server = config.get('auth', 'vpn_server')
 vpn_user = config.get('auth', 'vpn_user')
 vpn_name = config.get('auth', 'vpn_name')
 
-#No sense in doing work that doesn't need to be done...
 if libvpn_configurator.chap_is_stale():
     print "[+] Fetching password..."
     #Populate and submit form
@@ -54,7 +53,18 @@ if libvpn_configurator.chap_is_stale():
         sys.exit(1)
     print "[+] Got a password!"
 
-print "[+] Setting up VPN.."
+print "[+] Setting up VPN..."
 #Do VPN stuff!
 libvpn_configurator.start_vpn(vpn_name)
-print "[+] VPN set up? Check to see if pptp is running."
+gateway = False
+tries = 0
+while not gateway:
+    gateway = libvpn_configurator.get_gateway()
+    time.sleep(2)
+    tries += 1
+    if tries > 15:
+        print "[!] Could not get the gateway to create the tunnel. Please make sure pptp is running properly and create the route manually"
+        sys.exit(1)
+for ip in ips:
+   libvpn_configurator.create_route(ip, gateway)
+print "[+] VPN set up? Check to see if the routes were properly created."
